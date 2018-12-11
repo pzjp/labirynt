@@ -22,6 +22,50 @@
   color: #61dafb;
 }
 
+.newline {
+  clear: both;
+  line-height: 0px;
+}
+
+.Game-Board {
+  min-width: 600px;
+}
+
+.Game-void {
+  float: left;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  border: 1px solid black;
+  background-color: #36383b;
+  cursor: default;
+}
+
+.Game-cell {
+  padding: 1px;
+  float: left;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: 1px solid #383c44;
+  background-color: #282c34;
+  color: #61dafb;
+  cursor: pointer;
+}
+
+.Game-cell:hover {
+  background-color: #383c44;
+}
+
+.Game-cell.active {
+  border: 1px solid white;
+  background-color: #405060;
+  color: white;
+  cursor: default;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
