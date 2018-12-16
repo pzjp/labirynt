@@ -17,7 +17,8 @@ export class Board extends Component {
     return values;
   }
 
-  state = { x: 0, y: 0, cells: this.zeros(), count: 0, path: '' };
+  state = { x: -1, y: -1, cells: this.zeros(), count: 0,
+    path: '', clicks: 0 };
 
   generate(path) {
     var x, y, i;
@@ -34,8 +35,8 @@ export class Board extends Component {
         default: console.log("Invalid level definition!");
       }
     }
-    this.setState({ x: 0, y: 5, cells: values, count: path.length, path:'' });
-    console.log("Board reloaded.");
+    this.setState({ x: 0, y: 5, cells: values, count: path.length, path:'', clicks:0 });
+    //console.log("Board reloaded.");
   }
 
   getPointHandler(x,y)
@@ -52,6 +53,7 @@ export class Board extends Component {
         let board= JSON.parse(JSON.stringify(game.state.cells));
         let count = game.state.count;
         let path= game.state.path;
+        let klik= 0;
         if ( dx )
           for(i=game.state.x; i!== x; i+=dx)
           {
@@ -60,6 +62,7 @@ export class Board extends Component {
               {
                   --board[i][y]; --count;
                   if(dx>0) path+='p'; else path+='l';
+                  klik=1;
               }
               else { x2=i; break; } // Niemożliwy ruch!
           }
@@ -71,10 +74,12 @@ export class Board extends Component {
             {
                 --board[x][i]; --count;
                 if(dy>0) path+='d'; else path+='g';
+                klik=1;
             }
             else { y2=i; break; } // Niemożliwy ruch!
           }
-        game.setState({x: x2, y: y2, cells: board, count: count, path:path});     
+        game.setState({x: x2, y: y2, cells: board,
+          count: count, path:path, clicks: game.state.clicks+klik });     
       };
   }
 
@@ -117,7 +122,8 @@ export class Board extends Component {
         {
           if (this.state.count===1)
           {
-            win='flex';
+            win='block';
+            level=0;
             active=' victory';
           }
           else active=' active';
@@ -133,7 +139,9 @@ export class Board extends Component {
       {cells}
       <div style={{display:win}} className="VictoryPanel">
       Plansza ukończona!
-      <p>Twoje rozwiązanie: <b>{this.state.path}</b></p></div>
+      <div>Liczba ruchów: <b>{this.state.clicks}</b></div>
+      <div>Twoje rozwiązanie:<br/><b>{this.state.path}</b></div>
+      </div>
     </div>);
   }
 }
@@ -152,7 +160,7 @@ function Cell({className, level, handler })
     klasa = "Game-void";
   }
   let styl= { backgroundColor: colorSeq[level] };
-  if (className) styl={};
+  if (className) { styl={}; klasa="Game-cell"+className; }
 
   return (<div className={klasa} style={styl} onClick={handler}>{label}</div>);
 };

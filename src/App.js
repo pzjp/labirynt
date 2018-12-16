@@ -9,11 +9,12 @@ import './App.css';
 
 class App extends Component {
   
-  menu=null;
-
+  menu = null;
+  
   render() {
+    if (this.menu) this.menu.hideMenu();
 
-    return (<HashRouter onClick={e => this.menu.hideMenu(e)} >
+    return (<HashRouter onClick={e => this.menu.hideMenu()} >
 
       <div className="App" onKeyPress={(e)=> console.log(e)} >
         <MainMenu ref={ obj => this.menu= obj } />

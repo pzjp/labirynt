@@ -16,7 +16,7 @@ class PlayWindow extends Component {
         this.game.generate(p.answer); this.setState({plansza:p.id}); }}>Plansza {p.id}</div>
     )} );
     return (
-      <div className="App" >
+      <div>
         <div className="levelList">
           {levels}
         </div>

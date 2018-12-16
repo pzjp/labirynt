@@ -4,7 +4,7 @@
 }
 
 .Game-Board {
-  min-width: 600px;
+  min-width: 100vmin;
   display: block;
   border: 5px solid #004400;
   margin: 3px;
@@ -12,8 +12,8 @@
 
 .Game-void {
   float: left;
-  width: 30px;
-  height: 30px;
+  width: 5vmin;
+  height: 5vmin;
   box-sizing: border-box;
   border: 1px solid #445544;
   cursor: default;
@@ -22,19 +22,19 @@
 .Game-cell {
   padding: 1px;
   float: left;
-  width: 30px;
-  height: 30px;
-  font-size: 20px;
+  width: 5vmin;
+  height: 5vmin;
+  font-size: 3vmin;
   font-weight: bold;
+  text-align: center;
   box-sizing: border-box;
-  border: 1px solid #383c44;
-  background-color: black;
+  border: 1px solid #002200;
   color: #66ffed;
   cursor: pointer;
 }
 
 .Game-cell:hover {
-  background-color: #383c44;
+  border-color: white;
 }
 
 .Game-cell.active {
@@ -49,27 +49,49 @@
   background-color: red;
   color: red;
   cursor: default;
-  font-size:3px;
+  animation: CongratsCell infinite 3s linear;
 }
 
 .VictoryPanel {
-    margin: 15px;
-    min-height: 8vh;
-    max-width: 600px;
-    padding: 2vw 2px 2vw 2px;
-    box-sizing: border-box;
-    color: red;
-    font-size: 5vh;
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
+    top: 30vh;
+    left: 50vw;
+    text-align: center;
+    position: absolute;
+    margin-left: -50vmin;
+    padding: 0px;
+    color: white;
+    font-size: 7vmin;
+    
+    animation: Congrats infinite 5s linear;
+    font-weight:bold;
 }
 
-.VictoryPanel p{
-    font-family: 'Courier New', Courier, monospace;
-    margin:1px;
-    color:black;
-    font-size:15px;
+.VictoryPanel div{
+    margin:1vmin;
+    color:#002200;
+    font-size:3vmin;
     word-break: break-all;
-    max-width:560px;
+    padding: 0px 1vw;
+    width:98vmin;
+    
+}
+
+.VictoryPanel div b{
+  font-family: 'Courier New', Courier, monospace;
+  margin:1px;
+  color:black;
+}
+
+@keyframes Congrats {
+  0% { color: red; }
+  45% { color: yellow; }
+  50% { color: white; }
+  55% { color: yellow; }
+  100% { color: red; }
+}
+
+@keyframes CongratsCell {
+  0%   { background-color: red;   }
+  50%  { background-color: yellow;}
+  100% { background-color: red;   }
 }

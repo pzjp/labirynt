@@ -11,6 +11,8 @@ body{
   align-items: center;
   flex-direction: column;
   display: flex;
+  text-align: justify;
+  margin: 1vh 3vw;
 }
 
 .App-logo {
@@ -27,6 +29,40 @@ body{
   justify-content: center;
   font-size: calc(10px + 1vmin);
   color: white;
+}
+
+.TopMenu {
+  position: absolute;
+  top: 5vh;
+  left: 3vw;
+  background-color: #343e53;
+  padding: 2vh 2vw;
+  color: white;
+}
+
+.Menu {
+  top: 13vh;
+  left: 5vw;
+  position: absolute;
+}
+
+.Menu .item{
+  background-color: #343e53;
+  box-sizing: border-box;
+  padding: 2px 2vh;
+  border: 2px solid #61dafb;
+  width: 120px;
+}
+
+.Menu .item a{
+  color: #61dafb;
+  text-decoration:none;
+}
+
+.Menu .item:hover{
+  background-color: #5b6e96;
+  color: white;
+  border-left-width: 7px;
 }
 
 .App-header h1{

@@ -10,7 +10,10 @@ class Menu extends Component {
 
   showMenu(e)
   {
-    this.setState( {style: {display:"block"} });
+    if (this.state.style.display==="none")
+      this.setState( {style: {display:"block"} });
+    else
+      this.setState( {style: {display:"none"} });
     e.preventDefault();
   }
 
@@ -21,6 +24,9 @@ class Menu extends Component {
 
   render()
   {
+    document.body.addEventListener("click",e => {
+      if (e.srcElement.className!=="TopMenu") this.hideMenu();
+    });
     return (<div>
       <div className="TopMenu" onClick={e => this.showMenu(e)}>Menu</div>
       <div className="Menu" id="menu" style={this.state.style} >
