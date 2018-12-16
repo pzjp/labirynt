@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import "./App.css";
+import "./Board.css";
 
 export class Board extends Component {
   boardWidth = 20;
@@ -17,7 +17,7 @@ export class Board extends Component {
     return values;
   }
 
-  state = { x: 0, y: 0, cells: this.zeros(), count: 0 };
+  state = { x: 0, y: 0, cells: this.zeros(), count: 0, path: '' };
 
   generate(path) {
     var x, y, i;
@@ -34,7 +34,7 @@ export class Board extends Component {
         default: console.log("Invalid level definition!");
       }
     }
-    this.setState({ x: 0, y: 5, cells: values, count: path.length });
+    this.setState({ x: 0, y: 5, cells: values, count: path.length, path:'' });
     console.log("Board reloaded.");
   }
 
@@ -51,37 +51,30 @@ export class Board extends Component {
         let i, x2=x, y2=y;
         let board= JSON.parse(JSON.stringify(game.state.cells));
         let count = game.state.count;
+        let path= game.state.path;
         if ( dx )
-        for(i=game.state.x; i!== x; i+=dx)
-        {
-            //console.log(i+' '+y);
-            if (board[i+dx][y] > 0)
-            {
-                --board[i][y];
-                --count;
-            }
-            else
-            {
-                x2=i;
-                break;
-            }
-        }
+          for(i=game.state.x; i!== x; i+=dx)
+          {
+              //console.log(i+' '+y);
+              if (board[i+dx][y] > 0)
+              {
+                  --board[i][y]; --count;
+                  if(dx>0) path+='p'; else path+='l';
+              }
+              else { x2=i; break; } // Niemożliwy ruch!
+          }
         else   
-        for(i=game.state.y; i!== y; i+=dy)
-        {  
-           //console.log(x+' '+i);
-           if (board[x][i+dy] > 0)
-           {
-               --board[x][i];
-               --count;
-           }
-           else
-           {
-               y2=i;
-               break;
-           }
-        }
-        game.setState({x: x2, y: y2, cells: board, count: count});     
+          for(i=game.state.y; i!== y; i+=dy)
+          {  
+            //console.log(x+' '+i);
+            if (board[x][i+dy] > 0)
+            {
+                --board[x][i]; --count;
+                if(dy>0) path+='d'; else path+='g';
+            }
+            else { y2=i; break; } // Niemożliwy ruch!
+          }
+        game.setState({x: x2, y: y2, cells: board, count: count, path:path});     
       };
   }
 
@@ -106,42 +99,60 @@ export class Board extends Component {
         case 'ArrowUp':    event.preventDefault(); this.oneStep(0,-1); break;
         case 'ArrowLeft':  event.preventDefault(); this.oneStep(-1,0); break;
         case 'ArrowRight': event.preventDefault(); this.oneStep(1,0);  break;
+        default:
     }
   };
 
   render() {
     var cells = [];
     let x, y;
-    for (y = 0; y < this.boardHeight; y++) {
-      for (x = 0; x < this.boardWidth; x++) {
-      //  let handler = function (e) { e.preventDefault(); };
+    let win='none';
+    for (y = 0; y < this.boardHeight; y++)
+    {
+      for (x = 0; x < this.boardWidth; x++)
+      {
         let level = this.state.cells[x][y];
+        let active='';
         if (x === this.state.x && y === this.state.y)
-          level = -level;
-        cells = [...cells, (<Cell x={x} y={y} level={level} handler={this.getPointHandler(x,y)} />)];
+        {
+          if (this.state.count===1)
+          {
+            win='flex';
+            active=' victory';
+          }
+          else active=' active';
+        }
+
+        cells = [...cells, (<Cell className={active} level={level}
+          key={x + ' ' + y} handler={this.getPointHandler(x,y)} />)];
       }
-      cells = [...cells, (<div className="newline"></div>)];
+      cells = [...cells, (<div key={"nl"+y} className="newline"></div>)];
     }
 
     return (<div className="Game-Board" onKeyDown={this.keyHandler}>
       {cells}
+      <div style={{display:win}} className="VictoryPanel">
+      Plansza ukończona!
+      <p>Twoje rozwiązanie: <b>{this.state.path}</b></p></div>
     </div>);
   }
 }
 
-function Cell({ x, y, level, handler })
+const colorSeq=
+[ "#556655","#007700","#008800","#109910","#00AA00","#00BB00","#00CC00","#00DD00","#10DE10","#00FF00"]
+//['EE','CC','AA','99','88','77','66','55', '44','40','36','30','28','20','1A','16','10'];
+
+function Cell({className, level, handler })
 {
-  var klasa = "Game-cell";
-  var label = '' + level;
+  let klasa = "Game-cell"+className;
+  let label = '' + level;
   if (level === 0)
   {
     label = ''; handler = null;
     klasa = "Game-void";
   }
-  else if (level < 0)
-  {
-    klasa += " active";
-    label = '' + (-level);
-  }
-  return (<div className={klasa} onClick={handler} key={x + ' ' + y}>{label}</div>);
+  let styl= { backgroundColor: colorSeq[level] };
+  if (className) styl={};
+
+  return (<div className={klasa} style={styl} onClick={handler}>{label}</div>);
 };

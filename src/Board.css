@@ -1,0 +1,75 @@
+.newline {
+  clear: both;
+  line-height: 0px;
+}
+
+.Game-Board {
+  min-width: 600px;
+  display: block;
+  border: 5px solid #004400;
+  margin: 3px;
+}
+
+.Game-void {
+  float: left;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  border: 1px solid #445544;
+  cursor: default;
+}
+
+.Game-cell {
+  padding: 1px;
+  float: left;
+  width: 30px;
+  height: 30px;
+  font-size: 20px;
+  font-weight: bold;
+  box-sizing: border-box;
+  border: 1px solid #383c44;
+  background-color: black;
+  color: #66ffed;
+  cursor: pointer;
+}
+
+.Game-cell:hover {
+  background-color: #383c44;
+}
+
+.Game-cell.active {
+  border: 1px solid white;
+  background-color: #405060;
+  color: white;
+  cursor: default;
+}
+
+.Game-cell.victory {
+  border: 3px solid white;
+  background-color: red;
+  color: red;
+  cursor: default;
+  font-size:3px;
+}
+
+.VictoryPanel {
+    margin: 15px;
+    min-height: 8vh;
+    max-width: 600px;
+    padding: 2vw 2px 2vw 2px;
+    box-sizing: border-box;
+    color: red;
+    font-size: 5vh;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.VictoryPanel p{
+    font-family: 'Courier New', Courier, monospace;
+    margin:1px;
+    color:black;
+    font-size:15px;
+    word-break: break-all;
+    max-width:560px;
+}

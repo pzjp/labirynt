@@ -2,6 +2,17 @@
   text-align: center;
 }
 
+body{
+  background-color: #ddffdd;
+}
+
+.App-body{
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  display: flex;
+}
+
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 40vmin;
@@ -9,61 +20,35 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  font-size: calc(10px + 1vmin);
   color: white;
+}
+
+.App-header h1{
+  margin-bottom:2px;
 }
 
 .App-link {
   color: #61dafb;
 }
 
-.newline {
-  clear: both;
-  line-height: 0px;
+.levelList div {
+  display:inline-block;
+  margin: 2px; padding:3px;
+  border: 1px solid green;
+  cursor:pointer;
 }
 
-.Game-Board {
-  min-width: 600px;
-}
-
-.Game-void {
-  float: left;
-  width: 30px;
-  height: 30px;
-  box-sizing: border-box;
-  border: 1px solid black;
-  background-color: #36383b;
-  cursor: default;
-}
-
-.Game-cell {
-  padding: 1px;
-  float: left;
-  width: 30px;
-  height: 30px;
-  font-size: 20px;
-  font-weight: bold;
-  box-sizing: border-box;
-  border: 1px solid #383c44;
-  background-color: #282c34;
-  color: #61dafb;
-  cursor: pointer;
-}
-
-.Game-cell:hover {
-  background-color: #383c44;
-}
-
-.Game-cell.active {
-  border: 1px solid white;
-  background-color: #405060;
-  color: white;
-  cursor: default;
+.levelList div.active {
+  display:inline-block;
+  margin: 2px; padding:3px;
+  border: 1px solid green;
+  background-color: #61dafb;
 }
 
 @keyframes App-logo-spin {
