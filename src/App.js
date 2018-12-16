@@ -1,38 +1,33 @@
 import React, { Component } from 'react';
-//import logo from './logo.svg';
+import {Route, HashRouter } from "react-router-dom";
+import PlayWindow from "./PlayWindow";
+import InfoWindow from "./InfoWindow";
+import LogWindow from "./LogWindow";
+import StatWindow from "./StatWindow";
+import MainMenu from "./Menu";
 import './App.css';
-import { Board } from './Board';
-import Plansze from './plansze';
 
 class App extends Component {
-  game = null;
-  //appdiv= null;
-  state={ plansza: null };
-  /* 
-  componentDidMount()
-  {
-     this.game.generate("ppplgggppppdddddllllgggpppppp");
-  } */
+  
+  menu=null;
 
   render() {
-    var levels= Plansze.map((p)=> { let klasa='';
-      if (p.id===this.state.plansza) klasa="active";
-      return (
-      <div key={"Menu,"+p.id} className={klasa} onClick={(e)=> {
-        this.game.generate(p.answer); this.setState({plansza:p.id}); }}>Plansza {p.id}</div>
-    )} );
-    return (
+
+    return (<HashRouter onClick={e => this.menu.hideMenu(e)} >
+
       <div className="App" onKeyPress={(e)=> console.log(e)} >
+        <MainMenu ref={ obj => this.menu= obj } />
         <div className="App-header"><h1>Labirynt</h1>
         <p>Gra logiczna</p></div>
-        <div className="levelList">
-          {levels}
-        </div>
         <div className="App-body">
-        <Board ref={(t)=>{this.game=t;}} />
-        </div>
+            <Route exact path="/login" component={LogWindow}/>
+            <Route path="/info" component={InfoWindow}/>
+            <Route path="/gra" component={PlayWindow}/>
+            <Route path="/stat" component={StatWindow}/>
+         </div>
       </div>
-    );
+
+      </HashRouter>);
   }
 }
 
