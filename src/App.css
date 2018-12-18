@@ -6,6 +6,11 @@ body{
   background-color: #ddffdd;
 }
 
+.container-fluid {
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
 .App-body{
   justify-content: center;
   align-items: center;
@@ -38,6 +43,7 @@ body{
   background-color: #343e53;
   padding: 2vh 2vw;
   color: white;
+  cursor: pointer;
 }
 
 .Menu {
@@ -46,7 +52,8 @@ body{
   position: absolute;
 }
 
-.Menu .item{
+.Menu .item {
+  cursor: pointer;
   background-color: #343e53;
   box-sizing: border-box;
   padding: 2px 2vh;

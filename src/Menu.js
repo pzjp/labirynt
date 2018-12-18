@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 //import logo from './logo.svg';
 import './App.css';
 
+
 class Menu extends Component {
 
   state={ style: {display:"none"} };
@@ -22,18 +23,27 @@ class Menu extends Component {
     this.setState( {style: {display:"none"} });
   }
 
-  render()
-  {
+  componentDidMount() {
+    console.log("Add event listener!");
     document.body.addEventListener("click",e => {
       if (e.srcElement.className!=="TopMenu") this.hideMenu();
     });
+  }
+
+  render()
+  {
+    /* if (this.x) {this.x=false; console.log("Add event listener!");
+    document.body.addEventListener("click",e => {
+      if (e.srcElement.className!=="TopMenu") this.hideMenu();
+    }); } */
     return (<div>
-      <div className="TopMenu" onClick={e => this.showMenu(e)}>Menu</div>
+      <div className="btn btn-default TopMenu" onClick={e => this.showMenu(e)}>Menu</div>
       <div className="Menu" id="menu" style={this.state.style} >
-        <div className="item"><NavLink to="/gra">Graj</NavLink></div>
+        <div className="item"><NavLink to="/gra"  >Graj</NavLink></div>
+        <div></div>
         <div className="item"><NavLink to="/login">Zaloguj się</NavLink></div>
-        <div className="item"><NavLink to="/stat">Statystyki</NavLink></div>
-        <div className="item"><NavLink to="/info">Informacja</NavLink></div>
+        <div className="item"><NavLink to="/stat" >Statystyki</NavLink></div>
+        <div className="item"><NavLink to="/info" >Informacja</NavLink></div>
       </div>
       </div>);
   }

@@ -114,6 +114,7 @@ export class Board extends Component {
     let win='none';
     for (y = 0; y < this.boardHeight; y++)
     {
+      //let row=[];
       for (x = 0; x < this.boardWidth; x++)
       {
         let level = this.state.cells[x][y];
@@ -132,11 +133,11 @@ export class Board extends Component {
         cells = [...cells, (<Cell className={active} level={level}
           key={x + ' ' + y} handler={this.getPointHandler(x,y)} />)];
       }
-      cells = [...cells, (<div key={"nl"+y} className="newline"></div>)];
+      cells = [...cells, (<div className="newline" key={"nl"+y} />)];
     }
 
-    return (<div className="Game-Board" onKeyDown={this.keyHandler}>
-      {cells}
+    return (<div>
+      <div className="Game-Board">{cells}</div>
       <div style={{display:win}} className="VictoryPanel">
       Plansza ukończona!
       <div>Liczba ruchów: <b>{this.state.clicks}</b></div>
@@ -156,7 +157,7 @@ function Cell({className, level, handler })
   let label = '' + level;
   if (level === 0)
   {
-    label = ''; handler = null;
+    label = ' '; handler = null;
     klasa = "Game-void";
   }
   let styl= { backgroundColor: colorSeq[level] };

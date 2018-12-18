@@ -1,35 +1,53 @@
 .newline {
   clear: both;
   line-height: 0px;
+  width: 0px;
+  height:0px;
+}
+
+.Game-row {
+  margin: 0px;
+  padding: 0px;
+  display: block;
+  min-width: 100vmin;
+}
+
+.Game-board  div {
+  margin: 0px;
+  padding: 0px;
+  
+  color: #66ffed;
 }
 
 .Game-Board {
   min-width: 100vmin;
   display: block;
+  box-sizing: content-box;
   border: 5px solid #004400;
+  background-color: #004400;
   margin: 3px;
 }
 
 .Game-void {
-  float: left;
-  width: 5vmin;
-  height: 5vmin;
-  box-sizing: border-box;
   border: 1px solid #445544;
   cursor: default;
+  display: block;
+  float: left;
+  box-sizing: border-box;
+  width: 5vmin;
+  height: 5vmin;
 }
 
 .Game-cell {
-  padding: 1px;
   float: left;
-  width: 5vmin;
-  height: 5vmin;
   font-size: 3vmin;
   font-weight: bold;
   text-align: center;
+  display: block;
   box-sizing: border-box;
+  width: 5vmin;
+  height: 5vmin;
   border: 1px solid #002200;
-  color: #66ffed;
   cursor: pointer;
 }
 
