@@ -49,6 +49,7 @@
   height: 5vmin;
   border: 1px solid #002200;
   cursor: pointer;
+  color: #66ffed;
 }
 
 .Game-cell:hover {
