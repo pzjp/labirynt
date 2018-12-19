@@ -23,8 +23,8 @@ class Menu extends Component {
     this.setState( {style: {display:"none"} });
   }
 
-  componentDidMount() {
-    console.log("Add event listener!");
+  componentWillMount() {
+    //console.log("Add event listener!");
     document.body.addEventListener("click",e => {
       if (e.srcElement.className!=="TopMenu") this.hideMenu();
     });
@@ -38,14 +38,19 @@ class Menu extends Component {
     }); } */
     return (<div>
       <div className="btn btn-default TopMenu" onClick={e => this.showMenu(e)}>Menu</div>
-      <div className="Menu" id="menu" style={this.state.style} >
-        <div className="item"><NavLink to="/gra"  >Graj</NavLink></div>
+      <div className="Menu list-group" id="menu" style={this.state.style} >
+        <NavLink className="list-group-item list-item-action" to="/gra"  >Graj</NavLink>
+        <NavLink className="list-group-item list-item-action" to="/login">Zaloguj się</NavLink>
+        <NavLink className="list-group-item list-item-action" to="/stat" >Statystyki</NavLink>
+        <NavLink className="list-group-item list-item-action" to="/info" >Informacja</NavLink>
+      </div>
+      </div>);
+
+      /* <div className="item"><NavLink to="/gra"  >Graj</NavLink></div>
         <div></div>
         <div className="item"><NavLink to="/login">Zaloguj się</NavLink></div>
         <div className="item"><NavLink to="/stat" >Statystyki</NavLink></div>
-        <div className="item"><NavLink to="/info" >Informacja</NavLink></div>
-      </div>
-      </div>);
+        <div className="item"><NavLink to="/info" >Informacja</NavLink></div> */
   }
 }
 

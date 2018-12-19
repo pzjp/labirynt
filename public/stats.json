@@ -9,6 +9,6 @@
     "player": {"solved": true, "moves":54 }  },
 { "id":"17","solutions":2,  "moves":32, "players": 2,
     "player": {"solved": false } },
-{ "id":"$", "solutions":2,  "moves":50, "players": 1,
+{ "id":"$", "solutions":2,  "moves":43, "players": 1,
     "player": {"solved": false } }
 ]

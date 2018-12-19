@@ -80,18 +80,16 @@ body{
   color: #61dafb;
 }
 
-.levelList div {
-  display:inline-block;
-  margin: 2px; padding:3px;
-  border: 1px solid green;
-  cursor:pointer;
+.levelList .btn {
+  margin: 2px;
 }
 
-.levelList div.active {
-  display:inline-block;
-  margin: 2px; padding:3px;
-  border: 1px solid green;
-  background-color: #61dafb;
+.img-info {
+  text-align:center;
+}
+
+.img-info img{
+  width: 38vw; margin: 0px 2vw;
 }
 
 @keyframes App-logo-spin {
