@@ -24,3 +24,6 @@ yarn-error.log*
 run.bat
 /src/plansze.js
 
+# database
+/mongo
+/database

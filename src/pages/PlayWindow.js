@@ -26,7 +26,9 @@ class PlayWindow extends Component {
           if (p.id===this.state.plansza) klasa+=" active";
           return (
           <div key={"Menu,"+p.id} className={klasa} onClick={(e)=> {
-            this.game.generate(p.answer); this.setState({plansza:p.id}); }}>Plansza {p.id}</div>
+            this.game.generate(p.answer,p.id);
+            this.setState({plansza:p.id});
+          }}>Plansza {p.id}</div>
         )} );
     return (
       <div>

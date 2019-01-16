@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import "./Board.css";
+import axios from "axios";
 
 export class Board extends Component {
   boardWidth = 20;
@@ -18,9 +19,9 @@ export class Board extends Component {
   }
 
   state = { x: -1, y: -1, cells: this.zeros(), count: 0,
-    path: '', clicks: 0 };
+    path: '', clicks: 0, levelId: undefined };
 
-  generate(path) {
+  generate(path,id) {
     var x, y, i;
     var values = this.zeros();
     x = 0;
@@ -35,7 +36,11 @@ export class Board extends Component {
         default: console.log("Invalid level definition!");
       }
     }
-    this.setState({ x: 0, y: 5, cells: values, count: path.length, path:'', clicks:0 });
+    this.setState({ x: 0, y: 5,
+      cells: values,
+      count: path.length,
+      path:'', clicks:0,
+      levelId: id});
     //console.log("Board reloaded.");
   }
 
@@ -78,8 +83,20 @@ export class Board extends Component {
             }
             else { y2=i; break; } // Niemożliwy ruch!
           }
+        if (count===1 && game.state.count>0) // Kontkat z serwerem - wygrana
+        {
+            axios.post('/solution', {
+              level: game.state.levelId,
+              path: path,
+              moves: game.state.clicks+klik
+            }, ).then( (res)=>{
+              console.log(res);
+            });
+        }
         game.setState({x: x2, y: y2, cells: board,
-          count: count, path:path, clicks: game.state.clicks+klik });     
+          count: count, path:path,
+          clicks: game.state.clicks+klik,
+          levelId: game.state.levelId });     
       };
   }
 

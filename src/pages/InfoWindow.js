@@ -37,7 +37,7 @@ class InfoWindow extends Component {
         <hr/>
         <h3>O projekcie</h3>
             <p>Autor: Piotr Pikul</p>
-            <p>Grudzień 2018</p>
+            <p>Grudzień 2018 / Styczeń 2019</p>
       </div>
     );
   }
