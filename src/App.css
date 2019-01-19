@@ -38,12 +38,24 @@ body{
 
 .TopMenu {
   position: absolute;
-  top: 5vh;
+  box-sizing: border-box;
+  top: calc(10px + 2vh);
   left: 3vw;
   background-color: #343e53;
-  padding: 2vh 2vw;
+  padding: 1vh 2vw;
   color: white;
   cursor: pointer;
+}
+
+#logout {
+  position: absolute;
+  box-sizing: border-box;
+  top: calc(10px + 2vh);
+  right: 3vw;
+  cursor: pointer;
+  background-color: #343e53;
+  padding: 1vh 2vw;
+  color: white;
 }
 
 .Menu {

@@ -12,8 +12,7 @@ class PlayWindow extends Component {
 
   componentDidMount()
   {
-    axios.get('/plansze.json')
-    .then( res=> {
+    axios.get('/plansze.json').then( res=> {
       this.Plansze = res.data.table;
       console.log("Wczytano plansze.");
       

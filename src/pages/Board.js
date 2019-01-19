@@ -85,7 +85,7 @@ export class Board extends Component {
           }
         if (count===1 && game.state.count>0) // Kontkat z serwerem - wygrana
         {
-            axios.post('/solution', {
+            axios.post('/api/solution', {
               level: game.state.levelId,
               path: path,
               moves: game.state.clicks+klik

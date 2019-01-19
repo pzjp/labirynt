@@ -1,4 +1,6 @@
-[
+{
+    "user": null,
+    "stats" :[
 { "id":"1", "solutions":3,  "moves":10, "players": 5,
     "player": {"solved": true, "moves":10 } },
 { "id":"2", "solutions":5,  "moves":14, "players": 3,
@@ -12,3 +14,4 @@
 { "id":"$", "solutions":2,  "moves":43, "players": 1,
     "player": {"solved": false } }
 ]
+}

@@ -9,17 +9,29 @@ var DataBase = require('./dataread');
 
 var router= express.Router();
 
-router.get('/levels', function(req,res) {
-    DataBase.getAllLevels({},function(err, levels){
+router.get('/plansze.json', function(req,res) {
+    DataBase.getAllLevels({}, function(err, levels){
         if(err)
         {
-            console.log("Error! "+err);
+            console.log("Reading levels: Error! "+err);
             res.status(500).end("Database error");
         }
-        else res.send(JSON.parse(levels));
+        else res.send(JSON.stringify({table:levels}));
     });
 });
 
+// Dodatkowe API do odczytywania nazwy użytkownika sesji.
+router.get('/api/username', function(req,res) {
+    //if (req.)
+    if (req.isAuthenticated())
+    {
+        res.send(JSON.stringify({username:req.user.user.name}));
+    }
+    else
+        res.send(JSON.stringify({username:null}));
+});
+
+// Wysyłanie statystyk
 router.get('/stats.json', function(req,res) {
     DataBase.getLevelStats(function(err, stats){
         if(err)
@@ -29,7 +41,7 @@ router.get('/stats.json', function(req,res) {
         }
         else if(stats)
         {
-            if(req.isAuthenticated())
+            if(req.isAuthenticated()) // Statystyki gracza
             {
                 DataBase.getPlayerStats(req.user._id,function(err,userlevels){
                     for(var i in stats)
@@ -40,19 +52,22 @@ router.get('/stats.json', function(req,res) {
                                 stats[i].player=userlevels[j].player;
                         }
                     }
-                    res.send(JSON.stringify(stats));
+                    res.send(JSON.stringify({user: req.user.user.name, stats: stats}));
                 });
             }
             else
             {
                 //stats.loggedIn=false;
-                res.send(JSON.stringify(stats));
+                res.send(JSON.stringify({user:null, stats: stats}));
             }
         }
+        else
+            res.send(JSON.stringify({user:null, stats: []}));
     });
 });
 
-router.post('/solution', function( req, res) { // TODO
+// Nadesłanie rozwiazania planszy przez użytkownika.
+router.post('/api/solution', function( req, res) {
     verifyUser(req,res,function(req,res) {
     console.log("Rozwiązanie: "+JSON.stringify(req.body));
     //console.log("     Ruchów: "+req.body.moves);
@@ -71,33 +86,41 @@ const signIn = passport.authenticate('local-signup', {
     failureFlash: true,
   });
 const logIn = passport.authenticate('local-login', {
-    successRedirect: '/#/gra',
+    successRedirect: '/#/stat',
     failureRedirect: '/#/login',
     failureFlash: true,
   });
 
 router.post('/login', function(req, res, next)
 {
-    console.log("POST /login");
+    //console.log("POST /login");
     if (req.body.register) signIn(req, res, next); // Rejestracja
-    else logIn(req, res, next); // Logowanie
+    else logIn(req, res, next);                    // Logowanie
 });
 
-router.post('/logout', function(req,res){ // Wylogowywanie
-    req.logout();
-    res.redirect("/#/");
+router.get('/api/logout', function(req,res){ // Wylogowywanie
+    if (req.user)
+    {
+        console.log("Log out. User: "+req.user.user.name);
+        req.logout();
+        res.redirect("/#/");
+    }
+    res.status(401).redirect("/#/login");
 });
 
 // Odrzuć niezalogowanego użytkownika.
 function verifyUser(req, res, next) {
-        console.log("Recieved: "+ req);
+        //console.log("Recieved: "+ req);
         if (req.isAuthenticated())
         {
             console.log("Access granted. "+next);
             return next(req,res);
         }
         else
+        {
+            console.log(">> Unauthorized. Aborted.");
             res.status(401).end("Not logged in.");
+        }
 };
 
 module.exports= router;

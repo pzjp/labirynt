@@ -6,19 +6,47 @@ import LogWindow from "./pages/LogWindow";
 import StatWindow from "./pages/StatWindow";
 import MainMenu from "./Menu";
 import Home from "./pages/Void";
+import Lget from 'lodash/get';
+
 import './App.css';
+import Axios from 'axios';
 
 class App extends Component {
   
   menu ;
+  state={username:null};
+
+  componentDidMount()
+  {
+    this.getUsername();
+  }
+
+  getUsername()
+  {
+    Axios.get('/api/username').then(res =>{
+      this.setState({username: res.data.username});
+    });
+  }
   
   render() {
     if (this.menu) this.menu.hideMenu();
-
+    //const {userObj} = this.props;
+    var logOutBtn= ('');
+    //console.log(JSON.stringify(userObj));
+    //console.log(Lget(userObj, 'isAuthenticated'));
+    if ( this.state.username )
+    {
+        //Lget(userObj, 'loggedUserObj.userName');
+        logOutBtn=(<div id="logout" className="btn btn-default" onClick={
+          (evt)=>{ Axios.get("/api/logout");   // Zdarzenie:
+            this.setState({username:null}); } }>
+          Wyloguj ({this.state.username}) <span className="glyphicon glyphicon-log-out"></span></div>);
+    }
     return (<HashRouter>
 
       <div className="App"  /* onKeyPress={(e)=> console.log(e)} > */ >
         <MainMenu ref={ obj => this.menu= obj } />
+        {logOutBtn}
         <div className="App-header"><h1>Labirynt</h1>
         <p>Gra logiczna</p></div>
         <div className="App-body">

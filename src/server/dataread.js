@@ -1,7 +1,9 @@
+/* Obsługa połaczeń serwera z bazą danych, w tym autoryzacja użytkowników. */
 var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
 
-var userSchema = mongoose.Schema({
+/* Format danych w bazie */
+var userSchema = mongoose.Schema({ // UŻYTKOWNICY
   user: {
     name: { type:String, unique: true },
     password: String,
@@ -9,7 +11,7 @@ var userSchema = mongoose.Schema({
   }
 });
 
-var levelSchema = mongoose.Schema({
+var levelSchema = mongoose.Schema({ // PLANSZE
     level: {
       id: { type:String, unique: true },
       leastmoves: Number,
@@ -18,21 +20,18 @@ var levelSchema = mongoose.Schema({
     }
   });
 
-  // Dopisuje nowe rozwiązanie, ale NIE AKTUALIZYJE BAZY
-levelSchema.methods.addSolution = function(solution,done){
+/* Dopisuje nowe rozwiązanie, ale NIE AKTUALIZYJE BAZY.
+Aktualizacja wymaga osobnego wywołania metody save() */
+levelSchema.methods.addSolution = function(solution){
     if (this.level.leastmoves<0 || solution.moves< this.level.leastmoves)
         this.level.leastmoves=solution.moves;
-    if ( this.level.solutions.find( (sol) => sol==solution.path ) ){
-      //done(null,false);
+    if ( this.level.solutions.find( (sol) => sol===solution.path ) )
+    {
       console.log("Solution known.");
       return;
     }
     console.log("New solution.");
     this.level.solutions= [...this.level.solutions, solution.path];
-    /* this.save(function(err, success){
-      if (err) done(err);
-      done(null,true);
-    }); */
 };
 
 userSchema.methods.generateHash = function(password) {
@@ -43,6 +42,7 @@ userSchema.methods.validPassword = function(password) {
   return bcrypt.compareSync(password, this.user.password);
 };
 
+/* Zarejestruj schematy w bazie danych. */
 var mongooseUser = mongoose.model('User', userSchema);
 var mongooseLevel = mongoose.model('Level', levelSchema);
 
@@ -70,7 +70,7 @@ module.exports = {
   },
   function(req, username, password, done) {
     process.nextTick(function() {
-      console.log("Signing Up...")
+      console.log("Adding user ("+username+")")
       mongooseUser.findOne({ 'user.name':  username }, function(err, user) {
         if (err) return done(err);
         if (user)
@@ -101,11 +101,21 @@ module.exports = {
     console.log("Signing In...")
     mongooseUser.findOne({ 'user.name':  username }, function(err, user) {
       if (err)
-          return done(err);
+      {
+        console.log(">> Database error.");
+        return done(err, false, req.statusCode(500));
+      }
       if (!user)
-          return done(null, false, req.flash('loginMessage', 'Nie ma takiego użytkownika.'));
+      {
+        console.log(">> User not found.");
+        return done(null, false, req.flash('loginMessage', 'Nie ma takiego użytkownika.'));
+      }
       if (!user.validPassword(password))
-          return done(null, false, req.flash('loginMessage', 'Nieprawidłowe hasło.'));
+      {
+        console.log(">> Bad password.");
+        return done(null, false, req.flash('loginMessage', 'Nieprawidłowe hasło.'));
+      }
+      console.log(">> OK.");
       return done(null, user);
     });
   }));
@@ -116,8 +126,9 @@ getAllLevels: function(filter, nextOp) {
       if(err) nextOp(err,null);
       else {
         const result = levels.map(
-          level =>{
-            return {id:level.level.id, answer: level.level.solution[1]};
+          lev =>{ console.log(JSON.stringify(lev.level));
+            return { id:lev.level.id,
+              answer: lev.level.solutions.find(e=>true) };
           } );
         nextOp(null,result);
       }
@@ -128,11 +139,11 @@ getLevelStats: function( nextOp ) {
     if(err) nextOp(err,null);
     else {
       const result = levels.map(
-          level =>{ let out= {id:level.level.id,
-            solutions: level.level.solutions.length,
-            players: level.level.players,
-            moves: level.level.leastmoves,
-            player: {solved: false} };
+          lev =>{ let out= {id: lev.level.id,
+              solutions: lev.level.solutions.length,
+              players:   lev.level.players,
+              moves:     lev.level.leastmoves,
+              player:    {solved: false} };
             if (out.moves<=0 || out.players<=0)
             {
               out.moves=undefined;
