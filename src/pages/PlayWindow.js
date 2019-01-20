@@ -21,8 +21,11 @@ class PlayWindow extends Component {
   }
 
   render() {
-    const levels = this.Plansze.map((p)=> { let klasa='btn btn-primary';
-          if (p.id===this.state.plansza) klasa+=" active";
+    const levels = this.Plansze.map((p)=> {
+            let klasa='btn ';
+            if (p.solved) klasa+="btn-success";
+            else klasa+="btn-primary";
+            if (p.id===this.state.plansza) klasa+=" active";
           return (
           <div key={"Menu,"+p.id} className={klasa} onClick={(e)=> {
             this.game.generate(p.answer,p.id);
@@ -31,7 +34,7 @@ class PlayWindow extends Component {
         )} );
     return (
       <div>
-        <div className="levelList">
+        <div className="levelList scrollbar scrollbar-primary">
           {levels}
         </div>
         <div className="App-body">

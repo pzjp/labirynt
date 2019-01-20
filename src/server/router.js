@@ -10,14 +10,25 @@ var DataBase = require('./dataread');
 var router= express.Router();
 
 router.get('/plansze.json', function(req,res) {
-    DataBase.getAllLevels({}, function(err, levels){
+    if (req.isAuthenticated())
+    {
+        DataBase.getUserLevels(req.user._id, function(err, levels){
+            if(err)
+            {
+                console.log("Reading levels: Error! "+err);
+                res.status(500).end("Database error");
+            }
+            else res.send(JSON.stringify({table:levels}));
+            });
+    }
+    else DataBase.getAllLevels({}, function(err, levels){
         if(err)
         {
             console.log("Reading levels: Error! "+err);
             res.status(500).end("Database error");
         }
         else res.send(JSON.stringify({table:levels}));
-    });
+        });
 });
 
 // Dodatkowe API do odczytywania nazwy użytkownika sesji.
@@ -105,7 +116,7 @@ router.get('/api/logout', function(req,res){ // Wylogowywanie
         req.logout();
         res.redirect("/#/");
     }
-    res.status(401).redirect("/#/login");
+    else res.status(401).redirect("/#/login");
 });
 
 // Odrzuć niezalogowanego użytkownika.

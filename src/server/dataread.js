@@ -126,13 +126,31 @@ getAllLevels: function(filter, nextOp) {
       if(err) nextOp(err,null);
       else {
         const result = levels.map(
-          lev =>{ console.log(JSON.stringify(lev.level));
+          lev =>{ //console.log(JSON.stringify(lev.level));
             return { id:lev.level.id,
               answer: lev.level.solutions.find(e=>true) };
           } );
         nextOp(null,result);
       }
     });
+  },
+getUserLevels: function(userId, nextOp) {
+    mongooseUser.findById(userId, function(err,userObj){
+      if(err) nextOp(err,null);
+      else
+        mongooseLevel.find({}, function(err, levels) {
+          if(err) nextOp(err,null);
+          else {
+            const result = levels.map(
+              lev =>{ //console.log(JSON.stringify(lev.level));
+                return { id:lev.level.id,                     // identyfikator/numer/nazwa
+                  answer: lev.level.solutions.find(e=>true),  // Dowolne rozwiązanie = opis planszy
+                  solved: !!userObj.user.levels.find(e => e.id==lev.level.id) // Czy użytkownik rozwiązał? 
+                };
+              } );
+            nextOp(null,result);
+          }
+        }); });
   },
 getLevelStats: function( nextOp ) {
   mongooseLevel.find({}, function(err, levels) {

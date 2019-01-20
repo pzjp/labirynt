@@ -6,7 +6,7 @@ import LogWindow from "./pages/LogWindow";
 import StatWindow from "./pages/StatWindow";
 import MainMenu from "./Menu";
 import Home from "./pages/Void";
-import Lget from 'lodash/get';
+//import Lget from 'lodash/get';
 
 import './App.css';
 import Axios from 'axios';
