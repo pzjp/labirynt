@@ -36,6 +36,9 @@ class Menu extends Component {
     document.body.addEventListener("click",e => {
       if (e.srcElement.className!=="TopMenu") this.hideMenu();
     }); } */
+    var adminLink='';
+    if (this.props.adminMode) adminLink = (<a className="list-group-item list-item-action"
+        href="/addLevel">Dodaj planszę</a>);
     return (<div>
       <div className="btn btn-default TopMenu" onClick={e => this.showMenu(e)}>Menu</div>
       <div className="Menu list-group" id="menu" style={this.state.style} >
@@ -43,6 +46,7 @@ class Menu extends Component {
         <NavLink className="list-group-item list-item-action" to="/login">Zaloguj się</NavLink>
         <NavLink className="list-group-item list-item-action" to="/stat" >Statystyki</NavLink>
         <NavLink className="list-group-item list-item-action" to="/info" >Informacja</NavLink>
+        {adminLink}
       </div>
       </div>);
 

@@ -18,8 +18,8 @@ export class Board extends Component {
     return values;
   }
 
-  state = { x: -1, y: -1, cells: this.zeros(), count: 0,
-    path: '', clicks: 0, levelId: undefined };
+  state = { x: -1, y: -1, cells: this.zeros(), count: 1,
+    path: '', clicks: 0, levelId: undefined, result:null };
 
   generate(path,id) {
     var x, y, i;
@@ -36,11 +36,12 @@ export class Board extends Component {
         default: console.log("Invalid level definition!");
       }
     }
+    ++(values[x][y]);
     this.setState({ x: 0, y: 5,
       cells: values,
       count: path.length,
       path:'', clicks:0,
-      levelId: id});
+      levelId: id, result:null});
     //console.log("Board reloaded.");
   }
 
@@ -50,7 +51,7 @@ export class Board extends Component {
       return function(e)
       {
         e.preventDefault();
-        //console.log('Kliknięcie! ('+x+','+y+')');
+        if(game.state.count<1) return;
         if (x!== game.state.x && y !== game.state.y) return;
         var dx = Math.sign(x-game.state.x);
         var dy = Math.sign(y-game.state.y);
@@ -83,24 +84,27 @@ export class Board extends Component {
             }
             else { y2=i; break; } // Niemożliwy ruch!
           }
-        if (count===1 && game.state.count>0) // Kontkat z serwerem - wygrana
+        game.setState({x: x2, y: y2, cells: board,
+            count: count, path:path,
+            clicks: game.state.clicks+klik,
+            levelId: game.state.levelId, result:null }); 
+        if (count< 1 ) // Kontkat z serwerem - wygrana
         {
             axios.post('/api/solution', {
               level: game.state.levelId,
               path: path,
-              moves: game.state.clicks+klik
+              moves: game.state.clicks
             }, ).then( (res)=>{
-              console.log(res);
-            });
-        }
-        game.setState({x: x2, y: y2, cells: board,
-          count: count, path:path,
-          clicks: game.state.clicks+klik,
-          levelId: game.state.levelId });     
+                  game.setState({x: x2, y: y2, cells: game.state.cells,
+                    count: count, path: path,
+                    clicks: game.state.clicks,
+                    levelId: game.state.levelId, result:res.data });
+                  });
+        }            
       };
   }
 
-  oneStep(dx,dy)
+/*  oneStep(dx,dy)
   {
       var board = this.state.cells;
       if ( board[this.state.x+dx][this.state.y+dy] <= 0) return false;
@@ -110,9 +114,9 @@ export class Board extends Component {
                         cells: board,
                         count: this.state.count-1});
       return true;
-  }
+  } */
 
-  keyHandler(event)
+/*  keyHandler(event)
   {
     console.log(event);
     switch (event.key)
@@ -123,7 +127,7 @@ export class Board extends Component {
         case 'ArrowRight': event.preventDefault(); this.oneStep(1,0);  break;
         default:
     }
-  };
+  }; */
 
   render() {
     var cells = [];
@@ -138,7 +142,7 @@ export class Board extends Component {
         let active='';
         if (x === this.state.x && y === this.state.y)
         {
-          if (this.state.count===1)
+          if (this.state.count<1)
           {
             win='block';
             level=0;
@@ -152,13 +156,21 @@ export class Board extends Component {
       }
       cells = [...cells, (<div className="newline" key={"nl"+y} />)];
     }
+    var comment={nowe:'', rekord:'', rekordp: ''};
+    if(this.state.count<=1 && this.state.result)
+    {
+      if(this.state.result.unknown) comment.nowe=" (NOWE!)";
+      if(this.state.result.globalbest) comment.rekord=" (NAJMNIEJSZA ZNANA!)";
+      else if (this.state.result.yourbest) comment.rekord=" (Twój rekord!)";
+    }
 
-    return (<div>
+    return (<div className="App-body">
       <div className="Game-Board">{cells}</div>
       <div style={{display:win}} className="VictoryPanel">
       Plansza ukończona!
-      <div>Liczba ruchów: <b>{this.state.clicks}</b></div>
-      <div>Twoje rozwiązanie:<br/><b>{this.state.path}</b></div>
+      <div>Liczba ruchów: <b>{this.state.clicks}</b> {comment.rekord}</div>
+      <div>Twoje rozwiązanie{comment.nowe}: <br/>
+      <b>{this.state.path}</b></div>
       </div>
     </div>);
   }

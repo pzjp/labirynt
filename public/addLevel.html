@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <title>Labirynt: dodawanie plansz.</title>
+    <Style>
+    body{
+        background-color: #99FF99;
+    }
+    </Style>
+</head>
+<body>
+    <h1>Dodawanie planszy</h1>
+    <form action="/api/level" method="post">
+    <div>Identyfikator planszy: <input name="id"></div>
+    <div>Rozwiązanie: <input name="path" size="100"></div>
+    <div><input type="submit" value="Dodaj planszę"></div>
+    </form>
+    <a href="/">Wróć do strony głównej.</a>
+</body>
+</html>

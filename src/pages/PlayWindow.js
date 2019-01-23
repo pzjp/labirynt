@@ -14,10 +14,9 @@ class PlayWindow extends Component {
   {
     axios.get('/plansze.json').then( res=> {
       this.Plansze = res.data.table;
-      console.log("Wczytano plansze.");
-      
-       this.setState(this.state);
-       });
+      //console.log("Wczytano plansze.");
+         this.setState(this.state);
+      });
   }
 
   render() {
@@ -34,10 +33,10 @@ class PlayWindow extends Component {
         )} );
     return (
       <div>
-        <div className="levelList scrollbar scrollbar-primary">
-          {levels}
-        </div>
         <div className="App-body">
+          <div className="levelList scrollbar scrollbar-primary">
+            {levels}
+          </div>
         <Board ref={(t)=>{this.game=t;}} />
         </div>
       </div>

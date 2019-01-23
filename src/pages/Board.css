@@ -72,11 +72,13 @@
 }
 
 .VictoryPanel {
-    top: 30vmin;
+    top: calc(150px+5vh);
     left: 50vw;
+    width: 98vmin;
+    box-sizing: content-box;
     text-align: center;
     position: absolute;
-    margin-left: -50vw;
+    margin-left: -49vmin;
     padding: 0px;
     color: white;
     font-size: 7vmin;
@@ -86,12 +88,14 @@
 }
 
 .VictoryPanel div{
-    margin:1vmin;
+    left: 50vw;
+    margin-top:3vh;
     color:#002200;
     font-size:3vmin;
     word-break: break-all;
     padding: 0px 1vw;
-    width:98vmin;
+    width: 98vmin;
+    box-sizing: border-box;
     
 }
 

@@ -36,7 +36,7 @@ router.get('/api/username', function(req,res) {
     //if (req.)
     if (req.isAuthenticated())
     {
-        res.send(JSON.stringify({username:req.user.user.name}));
+        res.send(JSON.stringify({username:req.user.user.name, type: req.user.user.special}));
     }
     else
         res.send(JSON.stringify({username:null}));
@@ -79,16 +79,46 @@ router.get('/stats.json', function(req,res) {
 
 // Nadesłanie rozwiazania planszy przez użytkownika.
 router.post('/api/solution', function( req, res) {
-    verifyUser(req,res,function(req,res) {
+    verifyUser(req,res, function(req,res) {
     console.log("Rozwiązanie: "+JSON.stringify(req.body));
     //console.log("     Ruchów: "+req.body.moves);
     DataBase.validateSolution(req.body.level, req.user,
-        {path:req.body.solution, moves:req.body.moves}, function(err, ans){
+        {path:req.body.path, moves:req.body.moves}, function(err, ans){
             if (err) console.log("Błąd podczas weryfikacji.");
             else console.log("Weryfikacja rozwiązania: "+ans);
             res.send(ans);
         });
     });
+});
+
+router.get("/addLevel",function(req,res){
+    if(req.isAuthenticated())
+    {
+        if(req.user.user.special==='admin')
+        {
+            res.sendFile(fs.realpathSync(__dirname+'/../../public/addLevel.html'));
+            return;
+        }
+    }
+    res.status(401).send("Brak uprawnień!");
+});
+
+router.post('/api/level',function(req,res){ // Modyfikacja planszy w bazie
+    if(req.isAuthenticated())
+    {
+        if(req.user.user.special==='admin')
+        {
+            DataBase.upsertLevel(req.body.id, req.body.path,
+                function(err, ans){
+                    if(err)
+                        res.status(500).send(err);
+                    else
+                        res.send(ans);
+                });
+            return;
+        }
+    }
+    res.status(401).end();
 });
 
 const signIn = passport.authenticate('local-signup', {

@@ -14,7 +14,7 @@ import Axios from 'axios';
 class App extends Component {
   
   menu ;
-  state={username:null};
+  state={username:null,admin:false};
 
   componentDidMount()
   {
@@ -24,7 +24,7 @@ class App extends Component {
   getUsername()
   {
     Axios.get('/api/username').then(res =>{
-      this.setState({username: res.data.username});
+      this.setState({username: res.data.username, admin : (res.data.type=='admin')});
     });
   }
   
@@ -38,14 +38,15 @@ class App extends Component {
     {
         //Lget(userObj, 'loggedUserObj.userName');
         logOutBtn=(<div id="logout" className="btn btn-default" onClick={
-          (evt)=>{ Axios.get("/api/logout");   // Zdarzenie:
-            this.setState({username:null}); } }>
+          (evt)=>{ Axios.get("/api/logout");   // Zdarzenie
+            this.menu.props.adminMode=true;
+            this.setState({username:null,admin:false}); } }>
           Wyloguj ({this.state.username}) <span className="glyphicon glyphicon-log-out"></span></div>);
     }
     return (<HashRouter>
 
       <div className="App"  /* onKeyPress={(e)=> console.log(e)} > */ >
-        <MainMenu ref={ obj => this.menu= obj } />
+        <MainMenu ref={ obj => this.menu= obj } adminMode={this.state.admin} />
         {logOutBtn}
         <div className="App-header"><h1>Labirynt</h1>
         <p>Gra logiczna</p></div>

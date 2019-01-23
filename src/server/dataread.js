@@ -7,7 +7,8 @@ var userSchema = mongoose.Schema({ // UŻYTKOWNICY
   user: {
     name: { type:String, unique: true },
     password: String,
-    levels: [{id: String, leastmoves: Number}]
+    levels: [{id: String, leastmoves: Number}],
+    special: String
   }
 });
 
@@ -28,10 +29,15 @@ levelSchema.methods.addSolution = function(solution){
     if ( this.level.solutions.find( (sol) => sol===solution.path ) )
     {
       console.log("Solution known.");
-      return;
+      return false;
     }
     console.log("New solution.");
     this.level.solutions= [...this.level.solutions, solution.path];
+    return true;
+};
+
+levelSchema.methods.anyPath = function(){
+  return this.level.solutions.find( sol => true );
 };
 
 userSchema.methods.generateHash = function(password) {
@@ -64,10 +70,10 @@ module.exports = {
   });
 
   passport.use('local-signup', new LocalStrategy({ // Rejestrcja nowego użytkownika
-    usernameField: 'username',
-    passwordField: 'password',
-    passReqToCallback: true,
-  },
+          usernameField: 'username',
+          passwordField: 'password',
+          passReqToCallback: true,
+        },
   function(req, username, password, done) {
     process.nextTick(function() {
       console.log("Adding user ("+username+")")
@@ -83,6 +89,7 @@ module.exports = {
           newUser.user.name= username;
           newUser.user.password = newUser.generateHash(password);
           newUser.user.levels = [];
+          newUser.user.special = "";
           newUser.save(function(err) {
             if (err) throw err;
             return done(null, newUser);
@@ -93,10 +100,10 @@ module.exports = {
   }));
 
   passport.use('local-login', new LocalStrategy({
-    usernameField: 'username',
-    passwordField: 'password',
-    passReqToCallback: true,
-  },
+          usernameField: 'username',
+          passwordField: 'password',
+          passReqToCallback: true,
+        },
   function(req, username, password, done) {
     console.log("Signing In...")
     mongooseUser.findOne({ 'user.name':  username }, function(err, user) {
@@ -121,20 +128,20 @@ module.exports = {
   }));
 },
 validateSolution: validateLevel,
-getAllLevels: function(filter, nextOp) {
-    mongooseLevel.find(filter, function(err, levels) {
+getAllLevels: function(filter, nextOp) { // Pobierz listę plansz z bazy (przy podanym filtrze)
+    mongooseLevel.find(filter).sort('level.id').exec(function(err, levels) {
       if(err) nextOp(err,null);
       else {
         const result = levels.map(
           lev =>{ //console.log(JSON.stringify(lev.level));
             return { id:lev.level.id,
-              answer: lev.level.solutions.find(e=>true) };
+              answer: lev.anyPath() };
           } );
         nextOp(null,result);
       }
     });
   },
-getUserLevels: function(userId, nextOp) {
+getUserLevels: function(userId, nextOp) { // Pobierz listę plansz ukończonych przez danego gracza
     mongooseUser.findById(userId, function(err,userObj){
       if(err) nextOp(err,null);
       else
@@ -144,7 +151,7 @@ getUserLevels: function(userId, nextOp) {
             const result = levels.map(
               lev =>{ //console.log(JSON.stringify(lev.level));
                 return { id:lev.level.id,                     // identyfikator/numer/nazwa
-                  answer: lev.level.solutions.find(e=>true),  // Dowolne rozwiązanie = opis planszy
+                  answer: lev.anyPath(),  // Dowolne rozwiązanie = opis planszy
                   solved: !!userObj.user.levels.find(e => e.id==lev.level.id) // Czy użytkownik rozwiązał? 
                 };
               } );
@@ -173,7 +180,7 @@ getLevelStats: function( nextOp ) {
     }
   });
 },
-getPlayerStats(userId,nextOp)
+getPlayerStats(userId,nextOp) // Pobiera informację o planszach ukończonych przez danego gracza
 {
   mongooseUser.findById(userId, function(err, user) {
     if(err) nextOp(err,null);
@@ -187,6 +194,35 @@ getPlayerStats(userId,nextOp)
       nextOp(null,result);
     }
     else nextOp(null,[]);
+  });
+},
+upsertLevel(levelId, path, nextOp){ // Dodawanie (nadpisywanie) planszy
+  if(!checkLevelFits(path,20,11))      // Czy kod planszy jest poprawny?
+    nextOp('Level does not fit!',false);
+  else
+  mongooseLevel.findOne({"level.id":levelId},function(err,level){
+    if(err) nextOp(err,false);
+    else if(level) // Identyfikator planszy jest już zajęty
+    {
+      if(validatePaths(level.anyPath(), path))
+        nextOp(null,"Plansza jest identyczna z istniejącą."); // Identyczna plansza już istnieje!
+      else {
+        process.nextTick(function(){
+          level.level.solutions=[path];
+          level.level.players=0;
+          level.level.leastmoves=path.length;
+          level.save(nextOp); });
+      }
+    }else{  // Planszy o takim id nie było dotąd w bazie.
+      process.nextTick(function(){
+        var level = new mongooseLevel();
+        level.level.id=levelId;
+        level.level.solutions=[path];
+        level.level.players=0;
+        level.level.leastmoves=path.length;
+        level.save(nextOp); // Dodaj planszę do bazy
+      });
+    }
   });
 }
 };
@@ -226,7 +262,11 @@ function validatePaths(originalPath, newPath)
   {
     if (values[x]) --(values[x][y]);
     else return false; // niedozwolony ruch
-    if (values[x][y]<=0) return false; // niedozwolony ruch!
+    if (values[x][y]<0)
+    {
+      console.log("Minus na ("+x+","+y+")");
+      return false; // niedozwolony ruch!
+    }
     switch (newPath.charAt(i)) {
       case 'g': y--; break;
       case 'd': y++; break;
@@ -238,10 +278,49 @@ function validatePaths(originalPath, newPath)
   return true;
 }
 
+function countMoves(apath)
+{
+  var moves=1;
+  for(var i=1; i<apath.length; i++)
+  {
+    if (apath.charAt(i-1)!=apath.charAt(i)) moves++;
+  }
+  return moves;
+}
+
+function checkLevelFits(path,width,height)
+{
+  if(path.length<10) return false; // Nie pozwól dodać zbyt krótkiej planszy!
+  let x, y, i;
+  x = 0; y = 5;
+  for (i = 0; i < path.length; i++)
+  {
+    switch (path.charAt(i)) {
+      case 'g': y--; break;
+      case 'd': y++; break;
+      case 'l': x--; break;
+      case 'p': x++; break;
+      default: return false;
+    }
+    if (y<0 || x<0 || x>=width || y>=height)
+    {
+      console.log(JSON.stringify({x:x, y:y, index:i}));
+      return false;
+    }
+  }
+  return true;
+}
+
 /* Aktualizuje bazę danych porzez dopisanie nowego rozwiązania dla planszy.
 Aktualizuje informację o planszy i użytkowniku. Wynik zwraca do fukcji done. */
 function validateLevel(levelId, userName, solution, done)
 {
+  if (countMoves(solution.path)>solution.moves)
+  {
+    console.log("Too few moves! Inconsistend data!");
+    done("Too small number of moves!");
+    return;
+  }
   console.log("Validating solution to level '"+levelId+"'")
   const level = mongooseLevel.findOne({'level.id':levelId}, function(err1, level)
   {
@@ -249,19 +328,23 @@ function validateLevel(levelId, userName, solution, done)
       done(err1); return;  }
     if (level)
     {
-      const path = level.level.solutions[1];
+      const path = level.anyPath();
       if(validatePaths(path, solution.path))
       {
+        var answer = {unknown: false, globalbest: false, yourbest: false};
         console.log('Solution validated.')
-        if (level.level.leastmoves> solution.moves)
+        if (level.level.leastmoves>solution.moves)
+        {
+          answer.globalbest=true;
           level.level.leastmoves=solution.moves;
-        level.addSolution(solution, function(){})
+        }
+        answer.unknown = level.addSolution(solution);
         console.log("Searching user: '"+userName.user.name+"'...");
         mongooseUser.findById(userName._id, function(err, user){
           if (err) {
             console.log("Error searching user!");
             level.save(function(errr){if(errr) console.log("Error updating level stats!")});
-            done(err); return;  }
+            done(err,); return;  }
           if (user)
           { 
             console.log("User found.");
@@ -270,7 +353,10 @@ function validateLevel(levelId, userName, solution, done)
             levels = levels.map(e=> { if (e.id!=levelId) return e;
               found = true;
               if (e.leastmoves>solution.moves)
+              {
+                solution.yourbest=true;
                 return {id: e.id, leastmoves: solution.moves};
+              }
               return e;});
             if (!found)
             {
@@ -281,7 +367,9 @@ function validateLevel(levelId, userName, solution, done)
             }
             user.user.levels= levels;
             console.log("Saving user data...");
-            user.save(done);
+            user.save(function(errr){
+              done(errr,answer);
+            });
           }
          })
       }

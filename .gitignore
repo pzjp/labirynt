@@ -23,6 +23,8 @@ yarn-debug.log*
 yarn-error.log*
 run.bat
 /src/plansze.js
+/backup_json
+/src/server/addLevels0.js
 
 # database
 /mongo
