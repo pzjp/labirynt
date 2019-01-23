@@ -185,7 +185,7 @@ getPlayerStats(userId,nextOp) // Pobiera informację o planszach ukończonych pr
   mongooseUser.findById(userId, function(err, user) {
     if(err) nextOp(err,null);
     else if(user) {
-      console.log(JSON.stringify(user));
+      //console.log(JSON.stringify(user));
       var result = user.user.levels.map(
         level =>{
           return {id:level.id,
@@ -194,6 +194,19 @@ getPlayerStats(userId,nextOp) // Pobiera informację o planszach ukończonych pr
       nextOp(null,result);
     }
     else nextOp(null,[]);
+  });
+},
+listAllUsers(nextOp){
+  mongooseUser.find({}, function(err, users) {
+    if(err) nextOp(err,null);
+    else 
+      nextOp(null,
+        users.map(auser => {
+            return {name: auser.user.name,
+              results: auser.user.levels.map( entry =>{
+                return {id: entry.id, moves: entry.leastmoves};
+              })};})
+      );
   });
 },
 upsertLevel(levelId, path, nextOp){ // Dodawanie (nadpisywanie) planszy
@@ -233,7 +246,7 @@ function validatePaths(originalPath, newPath)
   if (originalPath==newPath) return true;
   if (originalPath.length != newPath.length)
   {
-    console.log('Length mismatch!');
+    console.log(' Length mismatch!');
     return false;
   }
   var x, y, i;
@@ -253,7 +266,7 @@ function validatePaths(originalPath, newPath)
       case 'l': x--; break;
       case 'p': x++; break;
       default:
-        console.log('Invalid level definition!');
+        console.log(' Invalid level definition!');
         return false;
     }
   }
@@ -264,7 +277,7 @@ function validatePaths(originalPath, newPath)
     else return false; // niedozwolony ruch
     if (values[x][y]<0)
     {
-      console.log("Minus na ("+x+","+y+")");
+      console.log(" Minus na ("+x+","+y+")");
       return false; // niedozwolony ruch!
     }
     switch (newPath.charAt(i)) {
@@ -280,7 +293,7 @@ function validatePaths(originalPath, newPath)
 
 function countMoves(apath)
 {
-  var moves=1;
+  var moves=0;
   for(var i=1; i<apath.length; i++)
   {
     if (apath.charAt(i-1)!=apath.charAt(i)) moves++;
@@ -315,16 +328,16 @@ function checkLevelFits(path,width,height)
 Aktualizuje informację o planszy i użytkowniku. Wynik zwraca do fukcji done. */
 function validateLevel(levelId, userName, solution, done)
 {
+  console.log("Weryfikacja rozizania planszy '"+levelId+"'");
   if (countMoves(solution.path)>solution.moves)
   {
-    console.log("Too few moves! Inconsistend data!");
+    console.log(" Zbyt mało ruchów!");
     done("Too small number of moves!");
     return;
   }
-  console.log("Validating solution to level '"+levelId+"'")
   const level = mongooseLevel.findOne({'level.id':levelId}, function(err1, level)
   {
-    if (err1) { console.log('Error searching level!');
+    if (err1) { console.log(' Nie ma takiej planszy!');
       done(err1); return;  }
     if (level)
     {
@@ -332,22 +345,22 @@ function validateLevel(levelId, userName, solution, done)
       if(validatePaths(path, solution.path))
       {
         var answer = {unknown: false, globalbest: false, yourbest: false};
-        console.log('Solution validated.')
+        console.log(' Rozwiązanie poprawne.')
         if (level.level.leastmoves>solution.moves)
         {
           answer.globalbest=true;
           level.level.leastmoves=solution.moves;
         }
         answer.unknown = level.addSolution(solution);
-        console.log("Searching user: '"+userName.user.name+"'...");
+        console.log("  Wyszukiwanie użytkownika: '"+userName.user.name+"'...");
         mongooseUser.findById(userName._id, function(err, user){
           if (err) {
-            console.log("Error searching user!");
-            level.save(function(errr){if(errr) console.log("Error updating level stats!")});
-            done(err,); return;  }
+            console.log("  BŁĄD!");
+            done(err,false); return;
+          }
           if (user)
           { 
-            console.log("User found.");
+            console.log("  OK.");
             var levels = user.user.levels;
             var found =false;
             levels = levels.map(e=> { if (e.id!=levelId) return e;
@@ -360,23 +373,31 @@ function validateLevel(levelId, userName, solution, done)
               return e;});
             if (!found)
             {
-              console.log("First solution from this user.");
+              console.log("  Pierwsze rozwiązanie!");
               levels= [...levels, {id: levelId, leastmoves: solution.moves} ];
-              level.level.players++;
-              level.save(function(errr){if(errr) console.log("Error updating level stats!")});
+              level.level.players++; 
             }
+            level.save(function(errr){
+                  if(errr) console.log("  Error updating level stats!");
+                  else console.log("  Level stats updated!");
+                });
             user.user.levels= levels;
-            console.log("Saving user data...");
+            console.log("  Zapis danych użytkownika...");
             user.save(function(errr){
-              done(errr,answer);
+              done(errr, answer);
             });
+          }
+          else
+          {
+            console.log("  Brak użytkownika!");
+            done('User Not Found',false);
           }
          })
       }
       else
       {
         console.log('Not validated!')
-        done(null, false);
+        done('Unauthorized', false);
       }
     }
     else

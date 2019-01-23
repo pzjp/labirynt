@@ -35,8 +35,8 @@ app.use(passport.session());
 app.use(flash());
 dataread.config(passport); // Konfiguracja logowania
 
-app.addListener("GET",  (e)=> console.log(" GET: " +e));
-app.addListener("POST", (e)=> console.log(" POST: "+e));
+//app.addListener("GET",  (e)=> console.log(" GET: " +e));
+//app.addListener("POST", (e)=> console.log(" POST: "+e));
 
 app.use("/", require("./router")); // Implementacja zapytań http w "router.js"
    

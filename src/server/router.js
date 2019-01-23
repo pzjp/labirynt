@@ -84,8 +84,8 @@ router.post('/api/solution', function( req, res) {
     //console.log("     Ruchów: "+req.body.moves);
     DataBase.validateSolution(req.body.level, req.user,
         {path:req.body.path, moves:req.body.moves}, function(err, ans){
-            if (err) console.log("Błąd podczas weryfikacji.");
-            else console.log("Weryfikacja rozwiązania: "+ans);
+            if (err) console.log(" Błąd podczas weryfikacji.");
+            else console.log(" Weryfikacja rozwiązania: "+ !!ans);
             res.send(ans);
         });
     });
@@ -103,22 +103,35 @@ router.get("/addLevel",function(req,res){
     res.status(401).send("Brak uprawnień!");
 });
 
-router.post('/api/level',function(req,res){ // Modyfikacja planszy w bazie
-    if(req.isAuthenticated())
+router.get('/api/users',function(req,res){ // Lista użytkowników
+    if(isAdmin(req))
     {
-        if(req.user.user.special==='admin')
-        {
-            DataBase.upsertLevel(req.body.id, req.body.path,
-                function(err, ans){
-                    if(err)
-                        res.status(500).send(err);
-                    else
-                        res.send(ans);
-                });
-            return;
-        }
+        DataBase.listAllUsers(
+            function(err, ans){
+                if(err)
+                {
+                    res.status(500).end();
+                    console.log(err);
+                }
+                else
+                    res.send(JSON.stringify(ans));
+            });
     }
-    res.status(401).end();
+    else res.status(401).end();
+});
+
+router.post('/api/level',function(req,res){ // Modyfikacja planszy w bazie
+    if(isAdmin(req))
+    {
+        DataBase.upsertLevel(req.body.id, req.body.path,
+            function(err, ans){
+                if(err)
+                    res.status(500).send(err);
+                else
+                    res.send(ans.replace("},","},\r\n"));
+            });
+    }
+    else res.status(401).end();
 });
 
 const signIn = passport.authenticate('local-signup', {
@@ -154,7 +167,7 @@ function verifyUser(req, res, next) {
         //console.log("Recieved: "+ req);
         if (req.isAuthenticated())
         {
-            console.log("Access granted. "+next);
+            console.log("Access granted.");
             return next(req,res);
         }
         else
@@ -162,6 +175,13 @@ function verifyUser(req, res, next) {
             console.log(">> Unauthorized. Aborted.");
             res.status(401).end("Not logged in.");
         }
+};
+
+function isAdmin(req)
+{
+    if( req.isAuthenticated() )
+        if( req.user.user.special==='admin') return true;
+    return false;
 };
 
 module.exports= router;

@@ -3,19 +3,25 @@
 <html lang="pl">
 <head>
     <title>Labirynt: dodawanie plansz.</title>
+    <link rel="shortcut icon" href="/icon.ico">
     <Style>
-    body{
-        background-color: #99FF99;
-    }
+    body { background-color: #99FF99; padding: 5vh 5vw; }
+    h1 {display:line;}
+    .full {width: 90vw;}
+    input {margin-bottom:6px;}
+    #cpr {position:absolute; bottom:3vh;}
     </Style>
 </head>
 <body>
-    <h1>Dodawanie planszy</h1>
+    <h1><img src="/icon.ico" height="32"> Dodawanie planszy</h1>
     <form action="/api/level" method="post">
-    <div>Identyfikator planszy: <input name="id"></div>
-    <div>Rozwiązanie: <input name="path" size="100"></div>
+    <div>Identyfikator planszy: <input name="id" pattern=".{1,5}" size="4"></div>
+    <div>Rozwiązanie:
+        <input name="path" pattern="[gdlp]{10,}" title="Tylko litery g-d-l-p. Minimum 10." class="full">
+    </div>
     <div><input type="submit" value="Dodaj planszę"></div>
     </form>
     <a href="/">Wróć do strony głównej.</a>
+    <div id="cpr"><i>Labirynt</i>. Gra logiczna. Autor: Piotr Pikul</div>
 </body>
 </html>

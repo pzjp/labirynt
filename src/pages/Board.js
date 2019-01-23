@@ -84,22 +84,24 @@ export class Board extends Component {
             }
             else { y2=i; break; } // Niemożliwy ruch!
           }
+        const moves = game.state.clicks+klik;
         game.setState({x: x2, y: y2, cells: board,
             count: count, path:path,
-            clicks: game.state.clicks+klik,
+            clicks: moves,
             levelId: game.state.levelId, result:null }); 
         if (count< 1 ) // Kontkat z serwerem - wygrana
         {
             axios.post('/api/solution', {
               level: game.state.levelId,
               path: path,
-              moves: game.state.clicks
+              moves: moves
             }, ).then( (res)=>{
+                  game.props.callback();
                   game.setState({x: x2, y: y2, cells: game.state.cells,
                     count: count, path: path,
-                    clicks: game.state.clicks,
+                    clicks: moves,
                     levelId: game.state.levelId, result:res.data });
-                  });
+                  }).catch( (err)=> {} );
         }            
       };
   }
@@ -177,7 +179,7 @@ export class Board extends Component {
 }
 
 const colorSeq=
-[ "#556655","#007700","#008800","#109910","#00AA00","#00BB00","#00CC00","#00DD00","#10DE10","#00FF00"]
+[ "#556655","#007700","#008800","#109910","#00AA00","#00BB00","#00CC00","#00DD00","#10DE10","#00FF00"];
 //['EE','CC','AA','99','88','77','66','55', '44','40','36','30','28','20','1A','16','10'];
 
 function Cell({className, level, handler })

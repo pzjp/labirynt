@@ -31,13 +31,14 @@ class PlayWindow extends Component {
             this.setState({plansza:p.id});
           }}>Plansza {p.id}</div>
         )} );
+    const me = this;
     return (
       <div>
         <div className="App-body">
           <div className="levelList scrollbar scrollbar-primary">
             {levels}
           </div>
-        <Board ref={(t)=>{this.game=t;}} />
+        <Board ref={(t)=>{this.game=t;}} callback={function(){me.componentDidMount()}} />
         </div>
       </div>
     );
